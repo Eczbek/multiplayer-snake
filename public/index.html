@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Snake</title>
+
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+
+			canvas {
+				border: 2px solid #000000;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas></canvas>
+
+		<script>
+			const canvas = document.querySelector('canvas');
+			canvas.width = canvas.height = 400;
+			const pen = canvas.getContext('2d');
+
+			const url = `${location.protocol.replace('http', 'ws')}//${location.host}`;
+			let socket = new WebSocket(url);
+			socket.addEventListener('open', () => {});
+			socket.addEventListener('close', () => {
+				if (confirm('Play again?')) {
+					location.reload();
+				}
+			});
+			socket.addEventListener('message', ({ data: buffer }) => {
+				const { players, apples } = JSON.parse(buffer);
+				pen.fillStyle = '#7F7FFF';
+				pen.fillRect(0, 0, screen.width, screen.height);
+				pen.fillStyle = '#00FF00';
+				for (const player of players) {
+					for (const part of player) {
+						pen.fillRect(part.x * 20, canvas.height - part.y * 20, 21, -21);
+					}
+				}
+				pen.fillStyle = '#FF0000';
+				for (const apple of apples) {
+					pen.fillRect(apple.x * 20, canvas.height - apple.y * 20, 21, -21);
+				}
+			});
+			const send = (data) => socket.send(JSON.stringify(data));
+			const reconnect = () => socket = new WebSocket(url);
+
+			addEventListener('keypress', ({ key }) => {
+				key = key.toLowerCase();
+				send({
+					x: (key == 'd') - (key == 'a'),
+					y: (key == 'w') - (key == 's')
+				});
+			});
+		</script>
+	</body>
+</html>

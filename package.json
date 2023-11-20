@@ -1,0 +1,7 @@
+{
+	"type": "module",
+	"dependencies": {
+		"mime-types": "^2.1.35",
+		"ws": "^8.14.2"
+	}
+}
